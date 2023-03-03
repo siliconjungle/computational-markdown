@@ -1,3 +1,4 @@
-# Paper App
+# Computational Markdown
 
-A paper app.
+A way to add computation and interactivity to Markdown documents.
+
