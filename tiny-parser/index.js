@@ -5,11 +5,12 @@ import { interpret } from './interpreter'
 import mdTokenizer from './md-tokenizer'
 import React from 'react'
 
-export const calculateResult = async (code, resources, setResources) =>
-  new Promise((resolve, reject) => {
+export const calculateResult = (code, resources, setResources, inner = false, source = '') => {
+  // new Promise((resolve, reject) => {
     try {
       if (code === '') {
-        resolve('')
+        // resolve('')
+        return ''
       }
 
       const inputStream = new InputStream(code)
@@ -21,21 +22,29 @@ export const calculateResult = async (code, resources, setResources) =>
     
       const ast = parser.parse()
 
-      interpret(ast, resources, setResources).then(result => {
-        resolve(result)
-      }).catch(e => {
-        resolve('ERROR')
-      })
+      const result = interpret(ast, resources, setResources, inner, source) // .then(result => {
+        // resolve(result)
+      // }).catch(e => {
+        // resolve('ERROR')
+      // })
+      return result
     } catch (e) {
-      resolve('ERROR')
+      console.log('_ERROR_', e)
+      // resolve('ERROR')
+      return 'ERROR'
     }
-  })
+  // })
+}
 
-export const calculateMd = async (md) =>
-  new Promise(async (resolve, reject) => {
+// It needs to do this ignoring the inputs.
+// It then needs a special pass that renders markdown and inputs.
+export const calculateMd = (md, resources, setResources, inner = false, source = '') => {
+  console.log('_MD_', md)
+  // new Promise(async (resolve, reject) => {
     try {
       if (md === '') {
-        resolve('')
+        // resolve('')
+        return ''
       }
 
       const inputStream = new InputStream(md)
@@ -43,7 +52,7 @@ export const calculateMd = async (md) =>
 
       const tokens = tokenizer.read()
 
-      console.log('_TOKENS_', tokens)
+      // console.log('_TOKENS_', tokens)
 
       let result = ''
 
@@ -54,32 +63,43 @@ export const calculateMd = async (md) =>
         } else if (tokens[i].type === 'code') {
           // Insert the code result as a span child of the body
           // OR insert the code as a React component and render it
-          const value = await calculateResult(tokens[i].value)
+          // const value = await calculateResult(tokens[i].value, resources, setResources)
+          const value = calculateResult(tokens[i].value, resources, setResources, inner, source)
+
           result += value
         }
       }
 
-      resolve(result)
+      // resolve(result)
+      return result
     } catch (e) {
-
-      console.log('_E_', e)
-      resolve('ERROR')
+      console.log('_ERROR_', e)
+      // resolve('ERROR')
+      return 'ERROR'
     }
-  })
+  // })
+}
 
-export const renderMd = async (md, resources, setResources) =>
-  new Promise(async (resolve, reject) => {
+// There are two phases.
+// The first phase is to do computations and get the result.
+// The second phase is to render the markdown and any inputs.
+// The current implementation is wrong as it splits on markdown.
+export const renderMd = (md, resources, setResources, inner = false, source = '') => {
+  // new Promise(async (resolve, reject) => {
     try {
       if (md === '') {
-        resolve('')
+        // resolve('')
+        return ''
       }
+
+      // console.log('_MD_', md)
 
       const inputStream = new InputStream(md)
       const tokenizer = new mdTokenizer(inputStream)
 
       const tokens = tokenizer.read()
 
-      console.log('_TOKENS_', tokens)
+      // console.log('_TOKENS_', tokens)
 
       // First clear the children of the parent
       // parent.innerHTML = ''
@@ -88,15 +108,15 @@ export const renderMd = async (md, resources, setResources) =>
 
       for (let i = 0; i < tokens.length; ++i) {
         if (tokens[i].type === 'md') {
-          const md = <span>{tokens[i].value}</span>
+          const md = <span key={i}>{tokens[i].value}</span>
           result.push(md)
         } else if (tokens[i].type === 'code') {
           // Insert the code result as a span child of the body
           // OR insert the code as a React component and render it
-          const value = await calculateResult(tokens[i].value, resources, setResources)
+          const value = calculateResult(tokens[i].value, resources, setResources, inner, source)
 
           if (typeof value === 'string') {
-            const md = <span>{value}</span>
+            const md = <span key={i}>{value}</span>
             result.push(md)
           } else {
             result.push(value)
@@ -104,9 +124,12 @@ export const renderMd = async (md, resources, setResources) =>
         }
       }
 
-      resolve(result)
+      // resolve(result)
+      return result
     } catch (e) {
       console.log('_E_', e)
-      resolve('ERROR')
+      // resolve('ERROR')
+      return 'ERROR'
     }
-  })
+  // })
+}

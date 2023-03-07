@@ -1,3 +1,5 @@
+import 'styles/styles.css'
+
 const MyApp = ({ Component, pageProps }) => (
   <Component {...pageProps} />
 )
