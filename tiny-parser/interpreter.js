@@ -28,7 +28,21 @@ const functions = {
     // return new Promise(resolve => setTimeout(() => resolve(apples), 250))
   // },
   RESOURCE: ([name], resources) => {
-    return resources[name]
+    const keys = name.split('.')
+
+    let currentResource = resources
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+
+      if (currentResource[key] === undefined) {
+        throw new Error(`Resource ${key} not found.`)
+      }
+
+      currentResource = currentResource[key]
+    }
+
+    return currentResource
   },
   // Needs to contain the full source.
   // Does a regex test on the source.

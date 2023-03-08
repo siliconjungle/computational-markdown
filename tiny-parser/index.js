@@ -27,7 +27,7 @@ export const calculateResult = (code, resources, setResources, inner = false, so
       // }).catch(e => {
         // resolve('ERROR')
       // })
-      return result
+      return typeof result === 'object' ? JSON.stringify(result) : result
     } catch (e) {
       console.log('_ERROR_', e)
       // resolve('ERROR')
