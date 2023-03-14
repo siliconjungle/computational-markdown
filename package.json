@@ -9,14 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "nanoid": "^4.0.0",
+    "@codemirror/lang-javascript": "^6.1.4",
+    "@uiw/codemirror-theme-github": "^4.19.9",
+    "@uiw/react-codemirror": "^4.19.9",
+    "events": "^3.3.0",
+    "messagepack": "^1.1.12",
+    "nanoid": "^4.0.1",
     "next": "12.3.1",
+    "quickjs-emscripten": "^0.22.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-json-view": "^1.21.3",
     "react-markdown": "^8.0.5"
   },
   "devDependencies": {
     "eslint": "8.25.0",
     "eslint-config-next": "12.3.1"
+  },
+  "browser": {
+    "fs": false,
+    "os": false,
+    "path": false
   }
 }

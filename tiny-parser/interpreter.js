@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 
 const functions = {
   SUM: args => {
@@ -270,13 +270,18 @@ const functions = {
   // }
 }
 
-export const interpret = (ast, resources, setResources, inner = false, source) => {
+export const interpret = (ast, resources, setResources, inner = false, source, customFunctions) => {
   if (ast.type === 'call' && ast.func.type === 'func') {
     const args = ast.args.map(arg => interpret(arg, resources, setResources, inner, source))
     const func = functions[ast.func.value]
     if (func) {
       // return functions[ast.func.value](await Promise.all(args), resources, setResources)
       return func(args, resources, setResources, inner, source)
+    } else if (customFunctions) {
+      const customFunc = customFunctions[ast.func.value]
+      if (customFunc) {
+        return customFunc(args, resources, setResources, inner, source)
+      }
     }
 
     throw new Error(`Unknown function ${ast.func.value}`)

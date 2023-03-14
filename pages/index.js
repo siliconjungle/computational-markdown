@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { calculateMd, renderMd } from 'tiny-parser'
+import { calculateMd } from 'tiny-parser'
 import Markdown from 'components/markdown'
 
 // This is really just dedicated to accessing STATE & calling methods.
