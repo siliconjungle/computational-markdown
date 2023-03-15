@@ -18,38 +18,38 @@ const CodeBox = () => {
   const [canvasData, setCanvasData] = useState(null)
   const canvasRef = useRef()
 
-  const setStateAtPath = (path, value) => {
-    const newState = {
-      ...state,
-    }
+  // const setStateAtPath = (path, value) => {
+  //   let newState = {
+  //     ...state,
+  //   }
 
-    let current = newState
-    for (let i = 0; i < path.length - 1; i++) {
-      const key = path[i]
-      if (!current[key]) {
-        current[key] = {}
-      }
-      current = current[key]
-    }
+  //   let current = newState
+  //   for (let i = 0; i < path.length - 1; i++) {
+  //     const key = path[i]
+  //     if (!current[key]) {
+  //       current[key] = {}
+  //     }
+  //     current = current[key]
+  //   }
 
-    current[path[path.length - 1]] = value
-    setState(newState)
+  //   current[path[path.length - 1]] = value
+  //   setState(newState)
 
-    return newState
-  }
+  //   return newState
+  // }
 
-  const getStateAtPath = (path) => {
-    let current = state
-    for (let i = 0; i < path.length; i++) {
-      const key = path[i]
-      if (!current[key]) {
-        return null
-      }
-      current = current[key]
-    }
+  // const getStateAtPath = (path) => {
+  //   let current = state
+  //   for (let i = 0; i < path.length; i++) {
+  //     const key = path[i]
+  //     if (!current[key]) {
+  //       return null
+  //     }
+  //     current = current[key]
+  //   }
 
-    return current
-  }
+  //   return current
+  // }
 
   const handleChange = (e) => {
     setCode(e)
@@ -64,7 +64,7 @@ const CodeBox = () => {
       type: 'execute',
     }
 
-    handleExecute(event, canvasData, QuickJS, code, game, setStateAtPath, getStateAtPath)
+    handleExecute(event, canvasData, QuickJS, code, game, setState, state)
   }
 
   useEffect(() => {
@@ -98,7 +98,7 @@ const CodeBox = () => {
       y,
     }
 
-    handleExecute(event, canvasData, QuickJS, code, game, setStateAtPath, getStateAtPath)
+    handleExecute(event, canvasData, QuickJS, code, game, setState, state)
   }
 
   const handleKeyEvent = (e) => {
@@ -110,7 +110,7 @@ const CodeBox = () => {
       key: e.key,
     }
 
-    handleExecute(event, canvasData, QuickJS, code, game, setStateAtPath, getStateAtPath)
+    handleExecute(event, canvasData, QuickJS, code, game, setState, state)
   }
 
   const handleFilenameChange = (e) => {
@@ -128,7 +128,17 @@ const CodeBox = () => {
   return (
     <div>
       <p>
-        {JSON.stringify(Object.keys(resources))}
+        {Object.keys(resources).map(resource => (
+          <button
+            key={resource}
+            onClick={() => {
+              setFilename(resource)
+              setCode(resources[resource])
+            }}
+          >
+            {resource}
+          </button>
+        ))}
       </p>
       <p>
         {JSON.stringify(state)}

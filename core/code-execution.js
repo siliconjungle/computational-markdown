@@ -1,6 +1,6 @@
 import { shouldInterruptAfterDeadline } from 'quickjs-emscripten'
 
-export const handleExecute = (e, canvasData, QuickJS, code, game, setStateAtPath, getStateAtPath) => {
+export const handleExecute = (e, canvasData, QuickJS, code, game, setState, _state) => {
   if (!QuickJS) return
   try {
     const vm = QuickJS.newContext()
@@ -25,16 +25,62 @@ export const handleExecute = (e, canvasData, QuickJS, code, game, setStateAtPath
       return colorObj
     })
 
+    let stateChanged = false
+    let state = _state
+
+    console.log('_STATE_', state)
+
+    const getStateAtPathLocal = (path) => {
+      let current = state
+      for (let i = 0; i < path.length; i++) {
+        const key = path[i]
+        if (!current[key]) {
+          return null
+        }
+        current = current[key]
+      }
+  
+      return current
+    }
+
+    const setStateAtPathLocal = (path, value) => {
+      if (path.length === 0) {
+        throw new Error('Cannot set state at path []')
+      }
+
+      if (stateChanged === false) {
+        stateChanged = true
+        state = JSON.parse(JSON.stringify(state))
+      }
+    
+      let current = state
+      for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i]
+        if (!current[key]) {
+          current[key] = {}
+        }
+        current = current[key]
+      }
+
+      if (path.length === 0) {
+        state = value
+      } else {
+        current[path[path.length - 1]] = value
+      }
+  
+      return state
+    }
+
     const setStateHandle = vm.newFunction('setState', (...args) => {
       const nativeArgs = args.map(vm.dump)
       const [path, value] = nativeArgs
-      setStateAtPath(path, value)
+      setStateAtPathLocal(path, value)
     })
 
     const getStateHandle = vm.newFunction('getState', (...args) => {
       const nativeArgs = args.map(vm.dump)
       const [path] = nativeArgs
-      const value = getStateAtPath(path)
+      const value = getStateAtPathLocal(path)
       return vm.newString(JSON.stringify(value))
     })
 
@@ -116,6 +162,10 @@ export const handleExecute = (e, canvasData, QuickJS, code, game, setStateAtPath
       result.value.dispose()
     }
     vm.dispose()
+
+    if (stateChanged) {
+      setState(state)
+    }
   } catch (e) {
     console.log('_ERROR_', e)
   }
